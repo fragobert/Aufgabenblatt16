@@ -3,7 +3,7 @@ package aufgabe16.aufgabenblatt16;
 import java.io.*;
 import java.net.*;
 
-public class ChatClient {
+public class ChatClient2 {
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
