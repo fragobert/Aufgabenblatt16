@@ -13,6 +13,7 @@ public class ChatClient2 {
     private JFrame frame;
     private JTextField messageField;
     private JTextArea chatArea;
+    private static JPanel loginPanel;
     private JButton sendButton;
     private Socket clientSocket;
     private PrintWriter out;
@@ -28,7 +29,7 @@ public class ChatClient2 {
     private void createGUI() {
 
         // Create a JPanel to hold multiple input fields
-        JPanel panel = new JPanel(new GridLayout(2, 2));
+        loginPanel = new JPanel(new GridLayout(2, 2));
 
         // Create labels and text fields for username and server IP
         JLabel usernameLabel = new JLabel("Benutzername: ");
@@ -37,20 +38,16 @@ public class ChatClient2 {
         JTextField serverIpField = new JTextField(15);
 
         // Add the labels and text fields to the panel
-        panel.add(usernameLabel);
-        panel.add(usernameField);
-        panel.add(serverIpLabel);
-        panel.add(serverIpField);
+        loginPanel.add(usernameLabel);
+        loginPanel.add(usernameField);
+        loginPanel.add(serverIpLabel);
+        loginPanel.add(serverIpField);
 
-        int result = JOptionPane.showConfirmDialog(null, panel, "Login", JOptionPane.OK_CANCEL_OPTION);
 
         // Display a dialog containing the panel
-        JOptionPane.showConfirmDialog(null, panel, "Login", JOptionPane.OK_CANCEL_OPTION);
+        JOptionPane.showConfirmDialog(null, loginPanel, "Login", JOptionPane.OK_CANCEL_OPTION);
         username = usernameField.getText();
         serverIp = serverIpField.getText();
-        if (result != JOptionPane.OK_OPTION && isValidInet4Address(serverIp)) {
-            JOptionPane.showMessageDialog(null, "Die eingegebene IP-Adresse ist nicht gültig.", "Fehler", JOptionPane.ERROR_MESSAGE);
-        }
 
 
         frame = new JFrame("Chat Client");
@@ -137,7 +134,15 @@ public class ChatClient2 {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 ChatClient2 client = new ChatClient2();
-                client.start(serverIp, 4444, username);
+                int result = JOptionPane.showConfirmDialog(null, loginPanel, "Login", JOptionPane.OK_CANCEL_OPTION);
+
+                // Check if the server IP is a valid IPv4 address
+                if (result == JOptionPane.OK_OPTION && isValidInet4Address(serverIp)) {
+                    client.start(serverIp, 4444, username);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Die eingegebene IP-Adresse ist ungültig.", "Fehler", JOptionPane.ERROR_MESSAGE);
+                    run();
+                }
             }
         });
     }
