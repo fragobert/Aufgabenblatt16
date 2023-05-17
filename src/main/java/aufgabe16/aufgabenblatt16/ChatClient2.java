@@ -17,7 +17,8 @@ public class ChatClient2 {
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
-    private String username;
+    private static String username;
+    private static String serverIp;
     private String commandPrefix = "/";
 
     public ChatClient2() {
@@ -25,6 +26,33 @@ public class ChatClient2 {
     }
 
     private void createGUI() {
+
+        // Create a JPanel to hold multiple input fields
+        JPanel panel = new JPanel(new GridLayout(2, 2));
+
+        // Create labels and text fields for username and server IP
+        JLabel usernameLabel = new JLabel("Benutzername: ");
+        JTextField usernameField = new JTextField(15);
+        JLabel serverIpLabel = new JLabel("IP des Servers: ");
+        JTextField serverIpField = new JTextField(15);
+
+        // Add the labels and text fields to the panel
+        panel.add(usernameLabel);
+        panel.add(usernameField);
+        panel.add(serverIpLabel);
+        panel.add(serverIpField);
+
+        int result = JOptionPane.showConfirmDialog(null, panel, "Login", JOptionPane.OK_CANCEL_OPTION);
+
+        // Display a dialog containing the panel
+        JOptionPane.showConfirmDialog(null, panel, "Login", JOptionPane.OK_CANCEL_OPTION);
+        username = usernameField.getText();
+        serverIp = serverIpField.getText();
+        if (result != JOptionPane.OK_OPTION && isValidInet4Address(serverIp)) {
+            JOptionPane.showMessageDialog(null, "Die eingegebene IP-Adresse ist nicht gültig.", "Fehler", JOptionPane.ERROR_MESSAGE);
+        }
+
+
         frame = new JFrame("Chat Client");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
@@ -78,11 +106,7 @@ public class ChatClient2 {
                 try {
                     String serverResponse;
                     while ((serverResponse = in.readLine()) != null) {
-                        if (serverResponse.startsWith("!")) {
-                            handleCommand(serverResponse);
-                        } else {
                             chatArea.append(serverResponse + "\n");
-                        }
                     }
                 } catch (Exception e) {
                     chatArea.append("Error reading server response: " + e.getMessage() + "\n");
@@ -103,15 +127,19 @@ public class ChatClient2 {
             chatArea.append("Unbekannter Befehl: " + command + "\n");
         }
     }
+    private static boolean isValidInet4Address(String ip) {
+        String regex = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
+        return ip.matches(regex);
+    }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 ChatClient2 client = new ChatClient2();
-                String username = JOptionPane.showInputDialog("Geben Sie Ihren Benutzernamen ein:");
-                String serverIp = JOptionPane.showInputDialog("Geben Sie die IP des Servers ein:");
                 client.start(serverIp, 4444, username);
             }
         });
     }
+
 }
